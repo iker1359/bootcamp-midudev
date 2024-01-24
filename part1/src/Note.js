@@ -1,16 +1,27 @@
 import React from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import axios from "axios";
 
-const Note = ({content, date}) => {
+const Note = ({title, body}) => {
 
-    return <li> - {content} {date}</li>
+    return <li> <b>{title}</b> <br /> {body}</li>
 
 }
 
-export const AppNote = (props) => {
+export const AppNote = () => {
 
-  const [notes, setNotes] = useState(props.notes)
+  const [notes, setNotes] = useState([])
   const [newNote, setNewNote] = useState('')
+
+  useEffect(() => {
+
+    fetch("https://jsonplaceholder.typicode.com/posts")
+    .then(response => response.json())
+    .then(json => {
+        setNotes(json)
+    })
+
+  }, [])
 
   const handleChange = (event) => { 
     setNewNote(event.target.value) 
@@ -19,10 +30,10 @@ export const AppNote = (props) => {
   const handleClick = () => {
 
       const newNoteToAdd = { 
+          userId: notes.length + 1,
           id: notes.length + 1, 
-          content: newNote, 
-          date: new Date().toISOString(), 
-          important: Math.random() < 0.5 
+          title: newNote, 
+          body: newNote
       }
 
       setNotes([...notes, newNoteToAdd])
@@ -35,7 +46,7 @@ export const AppNote = (props) => {
       <>
           <h1>Notas</h1>
           <ol>
-              {props.notes.map((note) => <Note key={note.id} content={note.content} /> )}
+              {notes.map((note) => <Note key={note.id} title={note.title} body={note.body} /> )}
           </ol>
           <h2>Crear Nota</h2>
           <input type='text' onChange={handleChange} value={newNote}></input>
